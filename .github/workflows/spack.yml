@@ -24,6 +24,7 @@ jobs:
         cmake_generator:
           - "Ninja"
         docker_image:
+          - "ubuntu:precise"
           - "ubuntu:trusty"
           - "debian/eol:wheezy"
         project_tags:
@@ -34,7 +35,7 @@ jobs:
       image: ${{ matrix.docker_image }}
 
     steps:
-    - uses: actions/checkout@master
+    #- uses: actions/checkout@master
 
     - name: Install Spack 
       run: |
