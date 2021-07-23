@@ -1,0 +1,61 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  spack-build:
+    name: '[spack:Tags:${{ matrix.project_tags }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+        cmake_generator:
+          - "Ninja"
+        docker_image:
+          - "ubuntu:trusty"
+          - "debian/eol:wheezy"
+        project_tags:
+          - v2021.05
+          - master
+
+    container:
+      image: ${{ matrix.docker_image }}
+
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Install Spack 
+      run: |
+        git clone https://github.com/spack/spack -b v0.16.2
+        . spack/share/spack/setup-env.sh
+
+    - name: Dependencies [Spack]
+      run: |
+        . spack/share/spack/setup-env.sh
+        spack install gcc@9.3.0
+        spack install ace opencv gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config
+
+    - name: Download and Configure [Spack]
+      run: |
+        . spack/share/spack/setup-env.sh
+        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.project_tags }}
+        cd robotology-superbuild
+        mkdir build
+        cd build
+        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF ..
+
+    - name: Build  [Spack]
+      run: |
+        cd build
+        cmake --build . --config ${{ matrix.build_type }}
