@@ -50,7 +50,7 @@ jobs:
       run: |
         . spack/share/spack/setup-env.sh
         spack install gcc@9.3.0
-        spack install ace opencv gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config
+        spack install ace opencv gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config %gcc@9.3.0
 
     - name: Download and Configure [Spack]
       run: |
