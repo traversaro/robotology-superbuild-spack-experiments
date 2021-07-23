@@ -65,5 +65,8 @@ jobs:
 
     - name: Build  [Spack]
       run: |
+        . spack/share/spack/setup-env.sh
+        spack load gcc@9.3.0
+        spack load ace %gcc@9.3.0 opencv %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
         cd build
         cmake --build . --config ${{ matrix.build_type }}
