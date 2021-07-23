@@ -37,6 +37,10 @@ jobs:
     steps:
     #- uses: actions/checkout@master
 
+    - name: System Dependencies [apt]
+      run: |
+        sudo apt-get install git
+
     - name: Install Spack 
       run: |
         git clone https://github.com/spack/spack -b v0.16.2
