@@ -39,6 +39,7 @@ jobs:
 
     - name: System Dependencies [apt]
       run: |
+        apt-get update
         apt-get install git
 
     - name: Install Spack 
