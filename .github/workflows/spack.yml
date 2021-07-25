@@ -73,7 +73,7 @@ jobs:
         cd robotology-superbuild
         mkdir build
         cd build
-        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF ..
+        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON  -DROBOTOLOGY_ENABLE_ICUB_HEAD:BOOL=ON  -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF ..
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Check free space
