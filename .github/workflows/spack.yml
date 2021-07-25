@@ -39,7 +39,10 @@ jobs:
     - name: System Dependencies [apt]
       run: |
         apt-get -y update
-        apt-get -y install git python build-essential curl
+        apt-get -y install git python build-essential curl tar gzip unzip bzip2 gnupg2 xz-utils
+    - name: Check free space
+      run: |
+        df -h
 
     - name: Install Spack 
       run: |
@@ -56,6 +59,10 @@ jobs:
         spack compiler find
         spack compilers
         spack install ace %gcc@9.3.0 opencv %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
+
+    - name: Check free space
+      run: |
+        df -h
 
     - name: Download and Configure [Spack]
       run: |
@@ -75,3 +82,7 @@ jobs:
         spack load ace %gcc@9.3.0 opencv %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
         cd build
         cmake --build . --config ${{ matrix.build_type }}
+
+    - name: Check free space
+      run: |
+        df -h
