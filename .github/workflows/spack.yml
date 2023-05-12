@@ -15,7 +15,7 @@ on:
 
 jobs:
   spack-build:
-    name: '[spack:Tags:${{ matrix.project_tags }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
+    name: '[spack:Tags:${{ matrix.robsub_version }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -25,9 +25,8 @@ jobs:
           - "Ninja"
         docker_image:
           - "ubuntu:jammy"
-        project_tags:
-          - v2023.02.3
-          - master
+        robsub_version:
+          - nogui
 
     container:
       image: ${{ matrix.docker_image }}
@@ -66,11 +65,11 @@ jobs:
       run: |
         . spack/share/spack/setup-env.sh
         spack env activate robsubenv
-        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.project_tags }}
+        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.robsub_version }}
         cd robotology-superbuild
         mkdir build
         cd build
-        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON  -DROBOTOLOGY_ENABLE_ICUB_HEAD:BOOL=ON  -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF -DNON_INTERACTIVE_BUILD:BOOL=ON ..
+        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON  -DROBOTOLOGY_ENABLE_ICUB_HEAD:BOOL=ON -DROBOTOLOGY_ENABLE_DYNAMICS:BOOL=ON -DROBOTOLOGY_ENABLE_DYNAMICS:BOOL=ON -DROBOTOLOGY_ENABLE_DYNAMICS_FULL_DEPS:BOOL=ON -DROBOTOLOGY_USES_GUI:BOOL=OFF   -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF -DNON_INTERACTIVE_BUILD:BOOL=ON ..
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Check free space
