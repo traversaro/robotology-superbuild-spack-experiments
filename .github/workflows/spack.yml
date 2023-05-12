@@ -15,7 +15,7 @@ on:
 
 jobs:
   spack-build:
-    name: '[spack:Tags:${{ matrix.robsub_version }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
+    name: '[spack:Tags:${{ matrix.robsup_version }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -25,7 +25,7 @@ jobs:
           - "Ninja"
         docker_image:
           - "ubuntu:jammy"
-        robsub_version:
+        robsup_version:
           - nogui
 
     container:
@@ -37,7 +37,7 @@ jobs:
     - name: System Dependencies [apt]
       run: |
         apt-get -y update
-        apt-get -y install git python3 build-essential curl tar gzip unzip bzip2 gnupg2 xz-utils
+        apt-get -y install git python3 build-essential gfortan curl tar gzip unzip bzip2 gnupg2 xz-utils
     - name: Check free space
       run: |
         df -h
@@ -51,11 +51,11 @@ jobs:
       run: |
         . spack/share/spack/setup-env.sh
         # See https://spack.readthedocs.io/en/latest/replace_conda_homebrew.html
-        spack env create robsubenv
-        spack -e robsubenv add ace gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config opencv spdlog qhull python swig py-pybind11 nlohmann-json tinyxml tinyxml2 sqlite matio assimp
-        spack -e robsubenv concretize
-        spack -e robsubenv install
-        spack env activate robsubenv
+        spack env create robsup
+        spack -e robsup add ace gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config opencv spdlog qhull python swig py-pybind11 nlohmann-json tinyxml tinyxml2 sqlite matio assimp
+        spack -e robsup concretize
+        spack -e robsup install
+        spack env activate robsup
 
     - name: Check free space
       run: |
@@ -64,8 +64,8 @@ jobs:
     - name: Download, Configure and Build [Spack]
       run: |
         . spack/share/spack/setup-env.sh
-        spack env activate robsubenv
-        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.robsub_version }}
+        spack env activate robsup
+        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.robsup_version }}
         cd robotology-superbuild
         mkdir build
         cd build
