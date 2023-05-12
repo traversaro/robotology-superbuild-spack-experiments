@@ -37,7 +37,7 @@ jobs:
     - name: System Dependencies [apt]
       run: |
         apt-get -y update
-        apt-get -y install git python3 build-essential gfortan curl tar gzip unzip bzip2 gnupg2 xz-utils
+        apt-get -y install git python3 build-essential gfortran curl tar gzip unzip bzip2 gnupg2 xz-utils
     - name: Check free space
       run: |
         df -h
