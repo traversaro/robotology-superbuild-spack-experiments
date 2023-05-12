@@ -16,7 +16,7 @@ on:
 jobs:
   spack-build:
     name: '[spack:Tags:${{ matrix.project_tags }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -24,10 +24,9 @@ jobs:
         cmake_generator:
           - "Ninja"
         docker_image:
-          - "ubuntu:trusty"
-          - "debian/eol:wheezy"
+          - "ubuntu:jammy"
         project_tags:
-          - v2021.05
+          - v2023.02.3
           - master
 
     container:
@@ -46,19 +45,18 @@ jobs:
 
     - name: Install Spack 
       run: |
-        git clone https://github.com/spack/spack -b v0.16.2
+        git clone https://github.com/spack/spack -b v0.19.2
         . spack/share/spack/setup-env.sh
 
     - name: Dependencies [Spack]
       run: |
         . spack/share/spack/setup-env.sh
-        spack install gcc@9.3.0
-        spack compilers
-        spack load gcc@9.3.0
-        spack compilers
-        spack compiler find
-        spack compilers
-        spack install ace %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
+        # See https://spack.readthedocs.io/en/latest/replace_conda_homebrew.html
+        spack env create robsubenv
+        spack -e robsubenv add ace gcc gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config
+        spack -e robsubenv concretize
+        spack -e robsubenv install
+        spack env activate robsubenv
 
     - name: Check free space
       run: |
@@ -67,8 +65,7 @@ jobs:
     - name: Download, Configure and Build [Spack]
       run: |
         . spack/share/spack/setup-env.sh
-        spack load gcc@9.3.0
-        spack load ace %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
+        spack env activate robsubenv
         git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.project_tags }}
         cd robotology-superbuild
         mkdir build
