@@ -52,7 +52,7 @@ jobs:
         . spack/share/spack/setup-env.sh
         # See https://spack.readthedocs.io/en/latest/replace_conda_homebrew.html
         spack env create robsup
-        spack -e robsup add opencv+highgui ace gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config  spdlog qhull python swig py-pybind11 nlohmann-json tinyxml tinyxml2 sqlite matio assimp
+        spack -e robsup add opencv+highgui+videoio ace gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config  spdlog qhull python swig py-pybind11 nlohmann-json tinyxml tinyxml2 sqlite matio assimp
         spack -e robsup concretize
         spack -e robsup install
         spack env activate robsup
