@@ -15,8 +15,8 @@ on:
 
 jobs:
   spack-build:
-    name: '[spack:Tags:${{ matrix.project_tags }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
-    runs-on: ubuntu-20.04
+    name: '[spack:Tags:${{ matrix.robsup_version }}@${{ matrix.docker_image }}@${{ matrix.build_type }}]'
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -24,11 +24,9 @@ jobs:
         cmake_generator:
           - "Ninja"
         docker_image:
-          - "ubuntu:trusty"
-          - "debian/eol:wheezy"
-        project_tags:
-          - v2021.05
-          - master
+          - "ubuntu:jammy"
+        robsup_version:
+          - nogui
 
     container:
       image: ${{ matrix.docker_image }}
@@ -39,26 +37,25 @@ jobs:
     - name: System Dependencies [apt]
       run: |
         apt-get -y update
-        apt-get -y install git python build-essential curl tar gzip unzip bzip2 gnupg2 xz-utils
+        apt-get -y install git python3 build-essential gfortran curl tar gzip unzip bzip2 gnupg2 xz-utils
     - name: Check free space
       run: |
         df -h
 
     - name: Install Spack 
       run: |
-        git clone https://github.com/spack/spack -b v0.16.2
+        git clone https://github.com/spack/spack -b v0.19.2
         . spack/share/spack/setup-env.sh
 
     - name: Dependencies [Spack]
       run: |
         . spack/share/spack/setup-env.sh
-        spack install gcc@9.3.0
-        spack compilers
-        spack load gcc@9.3.0
-        spack compilers
-        spack compiler find
-        spack compilers
-        spack install ace %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
+        # See https://spack.readthedocs.io/en/latest/replace_conda_homebrew.html
+        spack env create robsup
+        spack -e robsup add opencv+highgui+videoio+aruco ace gsl ipopt libedit eigen libjpeg-turbo cmake pkg-config  spdlog qhull python swig py-pybind11 nlohmann-json tinyxml tinyxml2 sqlite matio assimp
+        spack -e robsup concretize
+        spack -e robsup install
+        spack env activate robsup
 
     - name: Check free space
       run: |
@@ -67,13 +64,12 @@ jobs:
     - name: Download, Configure and Build [Spack]
       run: |
         . spack/share/spack/setup-env.sh
-        spack load gcc@9.3.0
-        spack load ace %gcc@9.3.0  gsl %gcc@9.3.0 ipopt %gcc@9.3.0 libedit %gcc@9.3.0 eigen %gcc@9.3.0 libjpeg-turbo %gcc@9.3.0 cmake %gcc@9.3.0 pkg-config %gcc@9.3.0
-        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.project_tags }}
+        spack env activate robsup
+        git clone https://github.com/robotology/robotology-superbuild -b  ${{ matrix.robsup_version }}
         cd robotology-superbuild
         mkdir build
         cd build
-        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON  -DROBOTOLOGY_ENABLE_ICUB_HEAD:BOOL=ON  -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF -DNON_INTERACTIVE_BUILD:BOOL=ON ..
+        cmake -DROBOTOLOGY_ENABLE_CORE:BOOL=ON  -DROBOTOLOGY_ENABLE_ICUB_HEAD:BOOL=ON -DROBOTOLOGY_ENABLE_DYNAMICS:BOOL=ON -DROBOTOLOGY_ENABLE_DYNAMICS:BOOL=ON -DROBOTOLOGY_ENABLE_DYNAMICS_FULL_DEPS:BOOL=ON -DROBOTOLOGY_USES_GUI:BOOL=OFF   -DROBOTOLOGY_USES_GAZEBO:BOOL=OFF -DNON_INTERACTIVE_BUILD:BOOL=ON ..
         cmake --build . --config ${{ matrix.build_type }}
 
     - name: Check free space
